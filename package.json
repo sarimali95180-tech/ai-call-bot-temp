@@ -1,0 +1,13 @@
+{
+  "name": "ai-call-bot-backend",
+  "version": "1.0.0",
+  "description": "Backend for AI Call Bot",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "pg": "^8.11.0",
+    "dotenv": "^16.0.0"
+  }
+}
