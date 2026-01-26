@@ -84,3 +84,86 @@ export const getTableStats = async (req, res) => {
     return errorResponse(res, 500, 'Failed to retrieve table statistics');
   }
 };
+
+/**
+ * Get comprehensive dashboard statistics
+ * Returns: Total Calls, Total Recordings, Total Bots, Avg TTS Rate, Avg LLM Rate
+ * @public - No authentication required
+ */
+export const getDashboardStats = async (req, res) => {
+  try {
+    let totalCalls = 0;
+    let totalRecordings = 0;
+    let totalBots = 0;
+    let avgTtsRate = 0;
+    let avgLlmRate = 0;
+
+    // Query 1: Count total calls
+    try {
+      const callCountResult = await sequelize.query(
+        `SELECT COUNT(*) as total_calls FROM "public"."calls"`,
+        { type: sequelize.QueryTypes.SELECT }
+      );
+      totalCalls = parseInt(callCountResult[0].total_calls) || 0;
+    } catch (err) {
+      console.error('Error counting calls:', err.message);
+    }
+
+    // Query 2: Count total recordings (calls with recording_path)
+    try {
+      const recordingCountResult = await sequelize.query(
+        `SELECT COUNT(*) as total_recordings FROM "public"."calls" WHERE "recording_path" IS NOT NULL AND "recording_path" != ''`,
+        { type: sequelize.QueryTypes.SELECT }
+      );
+      totalRecordings = parseInt(recordingCountResult[0].total_recordings) || 0;
+    } catch (err) {
+      console.error('Error counting recordings:', err.message);
+    }
+
+    // Query 3: Count total bots
+    try {
+      const botCountResult = await sequelize.query(
+        `SELECT COUNT(*) as total_bots FROM "public"."bots"`,
+        { type: sequelize.QueryTypes.SELECT }
+      );
+      totalBots = parseInt(botCountResult[0].total_bots) || 0;
+    } catch (err) {
+      console.error('Error counting bots:', err.message);
+    }
+
+    // Query 4: Average TTS rate (tts_cache_hit_rate)
+    try {
+      const ttsCacheResult = await sequelize.query(
+        `SELECT AVG(CAST(REGEXP_REPLACE("tts_cache_hit_rate", '[^0-9.]', '', 'g') AS FLOAT)) as avg_tts_rate FROM "public"."calls" WHERE "tts_cache_hit_rate" IS NOT NULL AND "tts_cache_hit_rate" != ''`,
+        { type: sequelize.QueryTypes.SELECT }
+      );
+      avgTtsRate = ttsCacheResult[0].avg_tts_rate ? parseFloat(parseFloat(ttsCacheResult[0].avg_tts_rate).toFixed(2)) : 0;
+    } catch (err) {
+      console.error('Error calculating avg TTS rate:', err.message);
+    }
+
+    // Query 5: Average LLM rate (llm_cache_hit_rate)
+    try {
+      const llmCacheResult = await sequelize.query(
+        `SELECT AVG(CAST(REGEXP_REPLACE("llm_cache_hit_rate", '[^0-9.]', '', 'g') AS FLOAT)) as avg_llm_rate FROM "public"."calls" WHERE "llm_cache_hit_rate" IS NOT NULL AND "llm_cache_hit_rate" != ''`,
+        { type: sequelize.QueryTypes.SELECT }
+      );
+      avgLlmRate = llmCacheResult[0].avg_llm_rate ? parseFloat(parseFloat(llmCacheResult[0].avg_llm_rate).toFixed(2)) : 0;
+    } catch (err) {
+      console.error('Error calculating avg LLM rate:', err.message);
+    }
+
+    const dashboardStats = {
+      total_calls: totalCalls,
+      total_recordings: totalRecordings,
+      total_bots: totalBots,
+      avg_tts_rate: avgTtsRate,
+      avg_llm_rate: avgLlmRate,
+    };
+
+    return successResponse(res, 200, 'Dashboard statistics retrieved successfully', dashboardStats);
+  } catch (error) {
+    console.error('Get dashboard stats error:', error);
+    return errorResponse(res, 500, 'Failed to retrieve dashboard statistics');
+  }
+};
