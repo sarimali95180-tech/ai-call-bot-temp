@@ -83,6 +83,17 @@ const Call = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+
+    // ✅ NEW FIELDS (from your INSERT)
+    tts_voice_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    customer_state: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     tableName: 'calls',
