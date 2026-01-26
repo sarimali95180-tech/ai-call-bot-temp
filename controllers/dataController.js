@@ -134,10 +134,11 @@ export const getDashboardStats = async (req, res) => {
     // Query 4: Average TTS rate (tts_cache_hit_rate)
     try {
       const ttsCacheResult = await sequelize.query(
-        `SELECT AVG(CAST(REGEXP_REPLACE("tts_cache_hit_rate", '[^0-9.]', '', 'g') AS FLOAT)) as avg_tts_rate FROM "public"."calls" WHERE "tts_cache_hit_rate" IS NOT NULL AND "tts_cache_hit_rate" != ''`,
+        `SELECT AVG(CAST(REGEXP_REPLACE(CAST("tts_cache_hit_rate" AS TEXT), '[^0-9.]', '', 'g') AS FLOAT)) as avg_tts_rate FROM "public"."calls" WHERE "tts_cache_hit_rate" IS NOT NULL`,
         { type: sequelize.QueryTypes.SELECT }
       );
-      avgTtsRate = ttsCacheResult[0].avg_tts_rate ? parseFloat(parseFloat(ttsCacheResult[0].avg_tts_rate).toFixed(2)) : 0;
+      console.log('TTS Cache Result:', ttsCacheResult);
+      avgTtsRate = ttsCacheResult[0]?.avg_tts_rate ? parseFloat(parseFloat(ttsCacheResult[0].avg_tts_rate).toFixed(2)) : 0;
     } catch (err) {
       console.error('Error calculating avg TTS rate:', err.message);
     }
@@ -145,10 +146,11 @@ export const getDashboardStats = async (req, res) => {
     // Query 5: Average LLM rate (llm_cache_hit_rate)
     try {
       const llmCacheResult = await sequelize.query(
-        `SELECT AVG(CAST(REGEXP_REPLACE("llm_cache_hit_rate", '[^0-9.]', '', 'g') AS FLOAT)) as avg_llm_rate FROM "public"."calls" WHERE "llm_cache_hit_rate" IS NOT NULL AND "llm_cache_hit_rate" != ''`,
+        `SELECT AVG(CAST(REGEXP_REPLACE(CAST("llm_cache_hit_rate" AS TEXT), '[^0-9.]', '', 'g') AS FLOAT)) as avg_llm_rate FROM "public"."calls" WHERE "llm_cache_hit_rate" IS NOT NULL`,
         { type: sequelize.QueryTypes.SELECT }
       );
-      avgLlmRate = llmCacheResult[0].avg_llm_rate ? parseFloat(parseFloat(llmCacheResult[0].avg_llm_rate).toFixed(2)) : 0;
+      console.log('LLM Cache Result:', llmCacheResult);
+      avgLlmRate = llmCacheResult[0]?.avg_llm_rate ? parseFloat(parseFloat(llmCacheResult[0].avg_llm_rate).toFixed(2)) : 0;
     } catch (err) {
       console.error('Error calculating avg LLM rate:', err.message);
     }
