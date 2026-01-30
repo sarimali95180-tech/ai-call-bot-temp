@@ -1,8 +1,6 @@
 import express from 'express'; // Add this
 import cors from 'cors';       // Add this
 import 'dotenv/config';
-import cors from 'cors';
-import express from 'express';
 import sequelize from './config/database.js';
 import userRoutes from './routes/userRoutes.js';
 import callsRoutes from './routes/callsRoutes.js';
@@ -54,17 +52,12 @@ async function startServer() {
   try {
     await sequelize.authenticate();
     console.log('Connected to the database successfully!')
+    app.listen(PORT, () => {
+      console.log(`✓ Server is running on http://localhost:${PORT}`);
+    });
   } catch (err) {
     console.error('✗ Database connection error:', err.message);
     process.exit(1);
   }
 }
-
-async function startServer() {
-  await connectToDatabase();
-  app.listen(PORT, () => {
-    console.log(`✓ Server is running on http://localhost:${PORT}`);
-  });
-}
-
 startServer();
