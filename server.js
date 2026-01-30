@@ -1,3 +1,5 @@
+import express from 'express'; // Add this
+import cors from 'cors';       // Add this
 import 'dotenv/config';
 import cors from 'cors';
 import express from 'express';
@@ -16,6 +18,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+app.get('/', (req, res) => {
+  res.send({ status: 'Backend is reachable!' });
+});
 app.use('/api/auth', userRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/calls', callsRoutes);
@@ -38,10 +43,20 @@ app.use((req, res) => {
 // Error handler
 app.use(errorHandler);
 
-async function connectToDatabase() {
+const app = express();
+if (!process.env.PORT) {
+  console.error("Set the PORT in .env")
+  process.exit(1);
+}
+const PORT = process.env.PORT; // Define your port
+
+app.use(cors());
+app.use(express.json());
+
+async function startServer() {
   try {
     await sequelize.authenticate();
-    console.log('✓ Connected to the database successfully!');
+    console.log('Connected to the database successfully!')
   } catch (err) {
     console.error('✗ Database connection error:', err.message);
     process.exit(1);
