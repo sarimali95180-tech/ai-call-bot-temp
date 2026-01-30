@@ -42,13 +42,10 @@ app.use((req, res) => {
 
 // Error handler
 app.use(errorHandler);
-
-const app = express();
 if (!process.env.PORT) {
   console.error("Set the PORT in .env")
   process.exit(1);
 }
-const PORT = process.env.PORT; // Define your port
 
 app.use(cors());
 app.use(express.json());
